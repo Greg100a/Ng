@@ -1,0 +1,17 @@
+{
+  "name": "NG Craft Manager",
+  "short_name": "NG Craft",
+  "description": "Gestion de ressources et crafting pour Nation Glory",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0d0804",
+  "theme_color": "#1a0e05",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%231a0e05'/><text y='130' font-size='120' text-anchor='middle' x='96'>⚔️</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}
