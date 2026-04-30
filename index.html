@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a0e05">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NG Craft">
+<link rel="manifest" href="manifest.json">
+<title>NG Craft Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-deep:#0d0804;--bg-dark:#1a0e05;--bg-card:#231408;--bg-panel:#2d1a0a;
+  --border:#6b3d1a;--border-gold:#c8952a;--gold:#e8b84b;--amber:#d4732a;
+  --text:#f0deb8;--text-dim:#a08060;--text-muted:#6b4d30;
+  --green:#4a9c5a;--red:#c04040;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg-deep);color:var(--text);font-family:'Crimson Text',serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(200,100,20,.06) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(100,60,10,.08) 0%,transparent 50%);pointer-events:none;z-index:0;}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:100;background:linear-gradient(180deg,#150b03,rgba(21,11,3,.97));border-bottom:2px solid var(–border-gold);padding:0 14px;box-shadow:0 4px 20px rgba(200,149,42,.2);}
+.header-inner{max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:52px;gap:10px;}
+.logo{font-family:‘Cinzel’,serif;font-size:17px;font-weight:700;color:var(–gold);letter-spacing:2px;text-shadow:0 0 20px rgba(232,184,75,.5);flex-shrink:0;}
+.logo span{color:var(–amber);}
+
+/* SERVER SWITCHER */
+.server-switcher{display:flex;align-items:center;gap:6px;flex:1;justify-content:flex-end;}
+.server-select{background:var(–bg-panel);border:1px solid var(–border-gold);border-radius:6px;padding:5px 10px;color:var(–gold);font-family:‘Cinzel’,serif;font-size:12px;letter-spacing:1px;cursor:pointer;outline:none;max-width:150px;}
+.server-select option{background:var(–bg-dark);}
+.btn-add-server{width:30px;height:30px;background:var(–bg-panel);border:1px solid var(–border);border-radius:6px;color:var(–gold);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.btn-add-server:hover{border-color:var(–border-gold);}
+
+/* NAV */
+.nav-tabs{background:var(–bg-dark);border-bottom:1px solid var(–border);display:flex;overflow-x:auto;scrollbar-width:none;}
+.nav-tabs::-webkit-scrollbar{display:none;}
+.tab-btn{flex-shrink:0;padding:11px 15px;background:none;border:none;color:var(–text-muted);font-family:‘Cinzel’,serif;font-size:11px;letter-spacing:1px;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+.tab-btn:hover{color:var(–text-dim);}
+.tab-btn.active{color:var(–gold);border-bottom-color:var(–gold);background:rgba(200,149,42,.05);}
+
+main{max-width:960px;margin:0 auto;padding:13px;position:relative;z-index:1;}
+.page{display:none;}.page.active{display:block;}
+
+/* CARDS */
+.card{background:var(–bg-card);border:1px solid var(–border);border-radius:8px;padding:13px;margin-bottom:11px;position:relative;overflow:hidden;}
+.card::before{content:’’;position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(–border-gold),transparent);opacity:.5;}
+.card-title{font-family:‘Cinzel’,serif;font-size:12px;color:var(–gold);letter-spacing:1px;margin-bottom:11px;}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:13px;}
+.stat-box{background:var(–bg-panel);border:1px solid var(–border);border-radius:6px;padding:9px;text-align:center;}
+.stat-box .val{font-family:‘Cinzel’,serif;font-size:19px;color:var(–gold);display:block;}
+.stat-box .lbl{font-size:10px;color:var(–text-muted);letter-spacing:1px;text-transform:uppercase;}
+
+/* SEARCH & FILTERS */
+.search-box{width:100%;background:var(–bg-panel);border:1px solid var(–border);border-radius:6px;padding:8px 11px;color:var(–text);font-family:‘Crimson Text’,serif;font-size:14px;margin-bottom:9px;outline:none;transition:border-color .2s;}
+.search-box:focus{border-color:var(–border-gold);}
+.search-box::placeholder{color:var(–text-muted);}
+.filter-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px;}
+.filter-btn{padding:4px 9px;background:var(–bg-panel);border:1px solid var(–border);border-radius:4px;color:var(–text-muted);font-size:11px;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.filter-btn:hover,.filter-btn.active{border-color:var(–border-gold);color:var(–gold);background:rgba(200,149,42,.08);}
+
+/* RESOURCE */
+.resource-list{display:flex;flex-direction:column;gap:5px;}
+.resource-item{background:var(–bg-panel);border:1px solid var(–border);border-radius:6px;padding:9px;display:grid;grid-template-columns:30px 1fr auto auto;align-items:center;gap:7px;transition:border-color .15s;}
+.resource-item:hover{border-color:var(–border-gold);}
+.res-icon{width:30px;height:30px;background:var(–bg-card);border:1px solid var(–border);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.res-name{font-size:13px;}
+.res-name small{display:block;font-size:10px;color:var(–text-muted);}
+.res-qty{font-family:‘Cinzel’,serif;font-size:14px;color:var(–gold);text-align:right;}
+.res-price{font-size:11px;color:var(–amber);text-align:right;cursor:pointer;}
+.low-stock{color:var(–red)!important;}
+.qty-controls{display:flex;align-items:center;gap:3px;}
+.qty-btn{width:25px;height:25px;background:var(–bg-card);border:1px solid var(–border);border-radius:4px;color:var(–gold);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.qty-btn:hover{background:var(–border);}
+
+/* FORMS */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px;}
+.form-row.t3{grid-template-columns:1fr 1fr 1fr;}
+.form-input{background:var(–bg-panel);border:1px solid var(–border);border-radius:6px;padding:7px 9px;color:var(–text);font-family:‘Crimson Text’,serif;font-size:13px;width:100%;outline:none;transition:border-color .2s;}
+.form-input:focus{border-color:var(–border-gold);}
+.form-input::placeholder{color:var(–text-muted);}
+select.form-input option{background:var(–bg-dark);}
+.form-label{display:block;font-size:10px;color:var(–text-muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border:none;border-radius:6px;font-family:‘Cinzel’,serif;font-size:11px;letter-spacing:1px;cursor:pointer;transition:all .2s;}
+.btn-gold{background:linear-gradient(135deg,#c8952a,#e8b84b);color:#1a0800;font-weight:700;}
+.btn-gold:hover{background:linear-gradient(135deg,#e8b84b,#f5d07a);box-shadow:0 0 15px rgba(232,184,75,.4);}
+.btn-ghost{background:transparent;border:1px solid var(–border);color:var(–text-dim);}
+.btn-ghost:hover{border-color:var(–border-gold);color:var(–gold);}
+.btn-red{background:rgba(192,64,64,.2);border:1px solid rgba(192,64,64,.4);color:#e88080;}
+.btn-red:hover{background:rgba(192,64,64,.35);}
+.btn-green{background:rgba(74,156,90,.2);border:1px solid rgba(74,156,90,.4);color:#80d890;}
+.btn-green:hover{background:rgba(74,156,90,.35);}
+.btn-sm{padding:5px 9px;font-size:10px;}
+
+/* RECIPE */
+.recipe-card{background:var(–bg-panel);border:1px solid var(–border);border-radius:8px;padding:11px;margin-bottom:7px;}
+.recipe-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px;}
+.recipe-name{font-family:‘Cinzel’,serif;font-size:13px;color:var(–gold);}
+.recipe-profit{font-size:11px;padding:3px 7px;border-radius:4px;}
+.profit-pos{background:rgba(74,156,90,.2);color:#80d890;}
+.profit-neg{background:rgba(192,64,64,.2);color:#e88080;}
+.recipe-ingredients{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:7px;}
+.ingredient-chip{background:var(–bg-card);border:1px solid var(–border);border-radius:4px;padding:3px 6px;font-size:11px;}
+.ingredient-chip.ok{border-color:rgba(74,156,90,.4);color:#80d890;}
+.ingredient-chip.missing{border-color:rgba(192,64,64,.4);color:#e88080;}
+
+/* SHOP */
+.shop-item{background:var(–bg-panel);border:1px solid var(–border);border-radius:6px;padding:9px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;}
+.shop-item:hover{border-color:var(–border-gold);}
+.shop-buy{color:#e88080;font-size:12px;}
+.shop-sell{color:#80d890;font-size:12px;}
+
+/* METIER */
+.metier-bar{background:var(–bg-card);border-radius:4px;height:7px;margin:4px 0;overflow:hidden;}
+.metier-fill{height:100%;background:linear-gradient(90deg,var(–amber),var(–gold));border-radius:4px;transition:width .3s;}
+
+/* PHOTO */
+.photo-zone{border:2px dashed var(–border-gold);border-radius:8px;padding:22px;text-align:center;cursor:pointer;transition:all .2s;}
+.photo-zone:hover{background:rgba(200,149,42,.05);}
+.photo-zone .big-icon{font-size:34px;margin-bottom:7px;}
+.preview-img{max-width:100%;border-radius:6px;margin:9px 0;border:1px solid var(–border);}
+.ai-result{background:var(–bg-panel);border:1px solid var(–border-gold);border-radius:8px;padding:11px;margin-top:9px;display:none;}
+.ai-result.show{display:block;}
+.loading-spinner{display:none;text-align:center;padding:14px;color:var(–gold);font-family:‘Cinzel’,serif;font-size:11px;letter-spacing:1px;}
+.loading-spinner.show{display:block;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.loading-spinner::before{content:‘⚔’;display:block;font-size:22px;margin-bottom:5px;animation:pulse 1s ease-in-out infinite;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;align-items:center;justify-content:center;padding:13px;}
+.modal-overlay.show{display:flex;}
+.modal{background:var(–bg-card);border:1px solid var(–border-gold);border-radius:10px;padding:17px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;box-shadow:0 0 40px rgba(200,149,42,.2);}
+.modal-title{font-family:‘Cinzel’,serif;font-size:14px;color:var(–gold);margin-bottom:13px;letter-spacing:1px;}
+.modal-close{float:right;background:none;border:none;color:var(–text-muted);font-size:17px;cursor:pointer;}
+
+/* TOAST */
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(80px);background:var(–bg-panel);border:1px solid var(–border-gold);border-radius:8px;padding:9px 16px;font-family:‘Cinzel’,serif;font-size:11px;color:var(–gold);z-index:999;transition:transform .3s;box-shadow:0 4px 20px rgba(0,0,0,.5);white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* SERVER BANNER */
+.server-banner{background:linear-gradient(135deg,var(–bg-panel),var(–bg-card));border:1px solid var(–border-gold);border-radius:8px;padding:11px 14px;margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;}
+.server-banner-name{font-family:‘Cinzel’,serif;font-size:15px;color:var(–gold);}
+.server-banner-info{font-size:11px;color:var(–text-muted);margin-top:2px;}
+
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(–bg-dark);}
+::-webkit-scrollbar-thumb{background:var(–border);border-radius:3px;}
+
+@media(max-width:480px){
+.form-row{grid-template-columns:1fr;}
+.form-row.t3{grid-template-columns:1fr 1fr;}
+.resource-item{grid-template-columns:26px 1fr auto;}
+.res-price{display:none;}
+}
+</style>
+
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">NG <span>⚔</span> CRAFT</div>
+    <div class="server-switcher">
+      <select class="server-select" id="server-select" onchange="switchServer(this.value)"></select>
+      <button class="btn-add-server" onclick="openAddServer()" title="Ajouter un serveur">+</button>
+    </div>
+  </div>
+</header>
+
+<nav class="nav-tabs">
+  <button class="tab-btn active" onclick="showTab('dashboard',this)">📊 Dashboard</button>
+  <button class="tab-btn" onclick="showTab('stock',this)">📦 Stock</button>
+  <button class="tab-btn" onclick="showTab('craft',this)">⚒️ Craft</button>
+  <button class="tab-btn" onclick="showTab('shop',this)">🛒 Shop</button>
+  <button class="tab-btn" onclick="showTab('metier',this)">⛏️ Métier</button>
+  <button class="tab-btn" onclick="showTab('photo',this)">📷 Photo IA</button>
+</nav>
+
+<main>
+
+<!-- DASHBOARD -->
+
+<div class="page active" id="page-dashboard">
+  <div id="server-banner-dash" class="server-banner">
+    <div><div class="server-banner-name" id="banner-name">—</div><div class="server-banner-info" id="banner-info">—</div></div>
+    <button class="btn btn-ghost btn-sm" onclick="openAddServer()">⚙️ Gérer</button>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-box"><span class="val" id="d-types">0</span><span class="lbl">Ressources</span></div>
+    <div class="stat-box"><span class="val" id="d-value">0</span><span class="lbl">Valeur</span></div>
+    <div class="stat-box"><span class="val" id="d-recipes">0</span><span class="lbl">Recettes</span></div>
+    <div class="stat-box"><span class="val" id="d-craftable">0</span><span class="lbl">Craftables</span></div>
+    <div class="stat-box"><span class="val" id="d-low">0</span><span class="lbl">Stock bas</span></div>
+    <div class="stat-box"><span class="val" id="d-profit">0</span><span class="lbl">Meilleur profit</span></div>
+  </div>
+  <div class="card"><div class="card-title">⚠️ Stocks bas</div><div id="low-stock-list"></div></div>
+  <div class="card"><div class="card-title">🏆 Top 5 profits</div><div id="top-crafts-list"></div></div>
+  <div class="card">
+    <div class="card-title">📋 Guide priorisation</div>
+    <div style="font-size:12px;color:var(--text-dim);line-height:1.9;">
+      1. Vérifie les stocks bas → réapprovisionne<br>
+      2. Lance les crafts les plus rentables<br>
+      3. Vends au shop selon les prix actuels<br>
+      4. Monte ton niveau mineur pour de meilleurs drops
+    </div>
+  </div>
+</div>
+
+<!-- STOCK -->
+
+<div class="page" id="page-stock">
+  <div class="stats-grid">
+    <div class="stat-box"><span class="val" id="s-types">0</span><span class="lbl">Types</span></div>
+    <div class="stat-box"><span class="val" id="s-qty">0</span><span class="lbl">Quantité</span></div>
+    <div class="stat-box"><span class="val" id="s-val">0</span><span class="lbl">Valeur</span></div>
+  </div>
+  <input class="search-box" id="search-res" placeholder="🔍 Rechercher..." oninput="renderResources()">
+  <div class="filter-row" id="cat-filters"></div>
+  <div class="card">
+    <div class="card-title">➕ Ajouter une ressource</div>
+    <div class="form-row">
+      <div><label class="form-label">Nom</label><input class="form-input" id="new-res-name" placeholder="ex: Fer"></div>
+      <div><label class="form-label">Catégorie</label>
+        <select class="form-input" id="new-res-cat">
+          <option>⛏️ Minerai classique</option><option>💎 Minerai rare</option>
+          <option>⚙️ Ressource craftée</option><option>🪵 Bois</option>
+          <option>🌿 Culture</option><option>🍖 Nourriture</option>
+          <option>🛡️ Armure</option><option>🔨 Outil</option>
+          <option>🔧 Machine</option><option>📦 Divers</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row t3">
+      <div><label class="form-label">Quantité</label><input class="form-input" id="new-res-qty" type="number" placeholder="0" min="0"></div>
+      <div><label class="form-label">Prix unitaire</label><input class="form-input" id="new-res-price" type="number" placeholder="0" min="0"></div>
+      <div><label class="form-label">Stock mini</label><input class="form-input" id="new-res-min" type="number" placeholder="0" min="0"></div>
+    </div>
+    <button class="btn btn-gold" onclick="addResource()">➕ Ajouter</button>
+  </div>
+  <div class="resource-list" id="resource-list"></div>
+</div>
+
+<!-- CRAFT -->
+
+<div class="page" id="page-craft">
+  <div class="card">
+    <div class="card-title">📋 Nouvelle Recette</div>
+    <div class="form-row">
+      <div><label class="form-label">Nom du craft</label><input class="form-input" id="craft-name" placeholder="ex: Épée en fer"></div>
+      <div><label class="form-label">Prix de vente</label><input class="form-input" id="craft-sell" type="number" placeholder="0"></div>
+    </div>
+    <div id="ingredients-container"></div>
+    <div style="display:flex;gap:7px;margin-top:7px;flex-wrap:wrap;">
+      <button class="btn btn-ghost btn-sm" onclick="addIngredientRow()">➕ Ingrédient</button>
+      <button class="btn btn-gold" onclick="saveRecipe()">💾 Sauvegarder</button>
+    </div>
+  </div>
+  <div id="recipes-list"></div>
+</div>
+
+<!-- SHOP -->
+
+<div class="page" id="page-shop">
+  <input class="search-box" id="search-shop" placeholder="🔍 Rechercher..." oninput="renderShop()">
+  <div class="filter-row" id="shop-filters"></div>
+  <div id="shop-list"></div>
+</div>
+
+<!-- METIER -->
+
+<div class="page" id="page-metier">
+  <div class="card">
+    <div class="card-title">⛏️ Niveau Mineur</div>
+    <div class="form-row t3">
+      <div><label class="form-label">Niveau</label><input class="form-input" id="m-level" type="number" min="1" max="10" placeholder="1" oninput="saveMetier()"></div>
+      <div><label class="form-label">XP actuelle</label><input class="form-input" id="m-xp" type="number" min="0" placeholder="0" oninput="saveMetier()"></div>
+      <div><label class="form-label">XP suivant niveau</label><input class="form-input" id="m-xpnext" type="number" placeholder="100" oninput="saveMetier()"></div>
+    </div>
+    <div class="metier-bar"><div class="metier-fill" id="m-fill" style="width:0%"></div></div>
+    <div style="font-size:11px;color:var(--text-muted);margin-top:3px;" id="m-pct">0% vers le niveau suivant</div>
+  </div>
+  <div class="card"><div class="card-title">📊 Table de drops</div><div id="drop-table"></div></div>
+</div>
+
+<!-- PHOTO IA -->
+
+<div class="page" id="page-photo">
+  <div class="card">
+    <div class="card-title">📷 Scan d'une offre</div>
+    <p style="font-size:12px;color:var(--text-dim);margin-bottom:9px;">Prends en photo une offre — l'IA remplit ton stock automatiquement.</p>
+    <div class="photo-zone" onclick="document.getElementById('photo-input').click()" id="photo-zone">
+      <div class="big-icon">📸</div><p style="font-size:13px;color:var(--text-dim);">Appuie pour prendre une photo</p>
+    </div>
+    <input type="file" id="photo-input" accept="image/*" capture="environment" onchange="handlePhoto(event)" style="display:none">
+    <img id="preview-img" class="preview-img" style="display:none">
+    <div class="loading-spinner" id="photo-loading">Analyse en cours...</div>
+    <div class="ai-result" id="ai-result">
+      <div style="font-family:'Cinzel',serif;font-size:11px;color:var(--gold);margin-bottom:7px;">✨ Résultats détectés</div>
+      <div id="ai-items-list"></div>
+      <div style="margin-top:9px;display:flex;gap:7px;flex-wrap:wrap;">
+        <button class="btn btn-green btn-sm" onclick="applyAiResult()">✅ Appliquer au stock</button>
+        <button class="btn btn-ghost btn-sm" onclick="resetPhoto()">🔄 Nouvelle photo</button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">💬 Saisie texte IA</div>
+    <textarea class="form-input" id="manual-ai-input" placeholder="ex: j'ai 500 bois, 200 fer, 50 or à 10 pièces..." style="height:65px;resize:vertical;"></textarea>
+    <div style="margin-top:7px;"><button class="btn btn-gold btn-sm" onclick="processManualAI()">🤖 Analyser</button></div>
+    <div class="loading-spinner" id="manual-loading">Analyse en cours...</div>
+    <div class="ai-result" id="manual-result">
+      <div style="font-family:'Cinzel',serif;font-size:11px;color:var(--gold);margin-bottom:7px;">✨ Résultats détectés</div>
+      <div id="manual-items-list"></div>
+      <div style="margin-top:9px;"><button class="btn btn-green btn-sm" onclick="applyManualResult()">✅ Appliquer au stock</button></div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- MODAL CRAFT -->
+
+<div class="modal-overlay" id="craft-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeCraftModal()">✕</button>
+    <div class="modal-title" id="modal-title">Confirmer le craft</div>
+    <div id="modal-content"></div>
+    <div style="display:flex;gap:7px;margin-top:13px;flex-wrap:wrap;">
+      <button class="btn btn-gold" id="modal-confirm-btn">⚒️ Crafter</button>
+      <button class="btn btn-ghost" onclick="closeCraftModal()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SERVEUR -->
+
+<div class="modal-overlay" id="server-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeServerModal()">✕</button>
+    <div class="modal-title">🌐 Gérer les serveurs</div>
+    <div id="server-list-modal" style="margin-bottom:13px;"></div>
+    <div style="border-top:1px solid var(--border);padding-top:11px;">
+      <div class="card-title" style="margin-bottom:9px;">➕ Nouveau serveur</div>
+      <div class="form-row">
+        <div><label class="form-label">Nom du serveur</label><input class="form-input" id="new-server-name" placeholder="ex: Survie S2"></div>
+        <div><label class="form-label">Emoji / icône</label><input class="form-input" id="new-server-icon" placeholder="⚔️" maxlength="4"></div>
+      </div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;">
+        <button class="btn btn-gold" onclick="addServer()">➕ Créer</button>
+        <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted);">
+          <input type="checkbox" id="copy-resources"> Copier les ressources du serveur actuel
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// RESSOURCES PAR DÉFAUT (ton Excel NG — 84 items)
+// ============================================================
+const DEFAULT_RESOURCES = [
+  {id:1,name:'Fer',cat:'⛏️ Minerai classique',qty:0,price:5,min:50},
+  {id:2,name:'Or',cat:'⛏️ Minerai classique',qty:0,price:15,min:20},
+  {id:3,name:'Charbon',cat:'⛏️ Minerai classique',qty:0,price:2,min:100},
+  {id:4,name:'Redstone',cat:'⛏️ Minerai classique',qty:0,price:3,min:30},
+  {id:5,name:'Émeraude',cat:'⛏️ Minerai classique',qty:0,price:50,min:10},
+  {id:6,name:'Lapis',cat:'⛏️ Minerai classique',qty:0,price:4,min:20},
+  {id:7,name:'Diamant',cat:'⛏️ Minerai classique',qty:0,price:200,min:5},
+  {id:8,name:'Cuivre',cat:'⛏️ Minerai classique',qty:0,price:4,min:30},
+  {id:9,name:'Étain',cat:'⛏️ Minerai classique',qty:0,price:6,min:30},
+  {id:10,name:'Aluminium',cat:'⛏️ Minerai classique',qty:0,price:8,min:20},
+  {id:11,name:'Quartz',cat:'⛏️ Minerai classique',qty:0,price:5,min:20},
+  {id:12,name:'Éco',cat:'💎 Minerai rare',qty:0,price:100,min:5},
+  {id:13,name:'Desh',cat:'💎 Minerai rare',qty:0,price:120,min:5},
+  {id:14,name:'Soufre',cat:'💎 Minerai rare',qty:0,price:80,min:5},
+  {id:15,name:'Zirconium',cat:'💎 Minerai rare',qty:0,price:150,min:3},
+  {id:16,name:'Onyx',cat:'💎 Minerai rare',qty:0,price:300,min:2},
+  {id:17,name:'Ashtone',cat:'💎 Minerai rare',qty:0,price:250,min:2},
+  {id:18,name:'Magnésium',cat:'💎 Minerai rare',qty:0,price:90,min:5},
+  {id:19,name:'Gallium',cat:'💎 Minerai rare',qty:0,price:180,min:3},
+  {id:20,name:'Niobium',cat:'💎 Minerai rare',qty:0,price:200,min:3},
+  {id:21,name:'Tiber',cat:'💎 Minerai rare',qty:0,price:350,min:2},
+  {id:22,name:'Acier',cat:'⚙️ Ressource craftée',qty:0,price:25,min:10},
+  {id:23,name:'Bronze',cat:'⚙️ Ressource craftée',qty:0,price:20,min:10},
+  {id:24,name:'Bois de chêne',cat:'🪵 Bois',qty:0,price:2,min:100},
+  {id:25,name:'Bois de bouleau',cat:'🪵 Bois',qty:0,price:2,min:50},
+  {id:26,name:'Bois de sapin',cat:'🪵 Bois',qty:0,price:2,min:50},
+  {id:27,name:'Bois de jungle',cat:'🪵 Bois',qty:0,price:3,min:30},
+  {id:28,name:"Bois d'acacia",cat:'🪵 Bois',qty:0,price:3,min:30},
+  {id:29,name:'Bois sombre',cat:'🪵 Bois',qty:0,price:4,min:20},
+  {id:30,name:'Bois de cerisier',cat:'🪵 Bois',qty:0,price:5,min:20},
+  {id:31,name:'Fibre Millénaire',cat:'🪵 Bois',qty:0,price:50,min:5},
+  {id:32,name:'Blé',cat:'🌿 Culture',qty:0,price:1,min:50},
+  {id:33,name:'Carotte',cat:'🌿 Culture',qty:0,price:1,min:30},
+  {id:34,name:'Pomme de terre',cat:'🌿 Culture',qty:0,price:1,min:30},
+  {id:35,name:'Betterave',cat:'🌿 Culture',qty:0,price:2,min:20},
+  {id:36,name:'Canne à sucre',cat:'🌿 Culture',qty:0,price:2,min:30},
+  {id:37,name:'Cacao',cat:'🌿 Culture',qty:0,price:3,min:20},
+  {id:38,name:'Citrouille',cat:'🌿 Culture',qty:0,price:2,min:20},
+  {id:39,name:'Melon',cat:'🌿 Culture',qty:0,price:2,min:20},
+  {id:40,name:'Pain',cat:'🍖 Nourriture',qty:0,price:3,min:20},
+  {id:41,name:'Steak',cat:'🍖 Nourriture',qty:0,price:5,min:10},
+  {id:42,name:'Potion de soin',cat:'🍖 Nourriture',qty:0,price:20,min:5},
+  {id:43,name:'Potion de force',cat:'🍖 Nourriture',qty:0,price:30,min:5},
+  {id:44,name:'Potion de vitesse',cat:'🍖 Nourriture',qty:0,price:25,min:5},
+  {id:45,name:'Potion de résistance',cat:'🍖 Nourriture',qty:0,price:35,min:3},
+  {id:46,name:'Armure Diamant (casque)',cat:'🛡️ Armure',qty:0,price:500,min:0},
+  {id:47,name:'Armure Diamant (plastron)',cat:'🛡️ Armure',qty:0,price:800,min:0},
+  {id:48,name:'Armure Diamant (jambières)',cat:'🛡️ Armure',qty:0,price:700,min:0},
+  {id:49,name:'Armure Diamant (bottes)',cat:'🛡️ Armure',qty:0,price:400,min:0},
+  {id:50,name:'Armure Ashtone (plastron)',cat:'🛡️ Armure',qty:0,price:2000,min:0},
+  {id:51,name:'Armure Onyx (plastron)',cat:'🛡️ Armure',qty:0,price:3000,min:0},
+  {id:52,name:'Pioche Diamant',cat:'🔨 Outil',qty:0,price:400,min:0},
+  {id:53,name:'Épée Diamant',cat:'🔨 Outil',qty:0,price:350,min:0},
+  {id:54,name:'Hache Diamant',cat:'🔨 Outil',qty:0,price:350,min:0},
+  {id:55,name:'Pelle Diamant',cat:'🔨 Outil',qty:0,price:300,min:0},
+  {id:56,name:'Houe Diamant',cat:'🔨 Outil',qty:0,price:280,min:0},
+  {id:57,name:'Pioche Ashtone',cat:'🔨 Outil',qty:0,price:1500,min:0},
+  {id:58,name:'Épée Ashtone',cat:'🔨 Outil',qty:0,price:1800,min:0},
+  {id:59,name:'Hache Ashtone',cat:'🔨 Outil',qty:0,price:1400,min:0},
+  {id:60,name:'Pelle Ashtone',cat:'🔨 Outil',qty:0,price:1200,min:0},
+  {id:61,name:'Houe Ashtone',cat:'🔨 Outil',qty:0,price:1100,min:0},
+  {id:62,name:'Pioche Onyx',cat:'🔨 Outil',qty:0,price:3000,min:0},
+  {id:63,name:'Épée Onyx',cat:'🔨 Outil',qty:0,price:3500,min:0},
+  {id:64,name:'Hache Onyx',cat:'🔨 Outil',qty:0,price:2800,min:0},
+  {id:65,name:'Pelle Onyx',cat:'🔨 Outil',qty:0,price:2500,min:0},
+  {id:66,name:'Foreuse',cat:'🔧 Machine',qty:0,price:500,min:0},
+  {id:67,name:'Fonderie',cat:'🔧 Machine',qty:0,price:800,min:0},
+  {id:68,name:'Compresseur',cat:'🔧 Machine',qty:0,price:600,min:0},
+  {id:69,name:'Extracteur',cat:'🔧 Machine',qty:0,price:700,min:0},
+  {id:70,name:'Raffinerie',cat:'🔧 Machine',qty:0,price:1200,min:0},
+  {id:71,name:'Broyeur',cat:'🔧 Machine',qty:0,price:400,min:0},
+  {id:72,name:'Distillateur',cat:'🔧 Machine',qty:0,price:900,min:0},
+  {id:73,name:'Centrifugeuse',cat:'🔧 Machine',qty:0,price:1100,min:0},
+  {id:74,name:'Électrolyseur',cat:'🔧 Machine',qty:0,price:1500,min:0},
+  {id:75,name:'Réacteur',cat:'🔧 Machine',qty:0,price:2000,min:0},
+  {id:76,name:'Synthétiseur',cat:'🔧 Machine',qty:0,price:1800,min:0},
+  {id:77,name:'Assembleur',cat:'🔧 Machine',qty:0,price:1600,min:0},
+  {id:78,name:'Générateur',cat:'🔧 Machine',qty:0,price:2500,min:0},
+  {id:79,name:'Convertisseur',cat:'🔧 Machine',qty:0,price:1300,min:0},
+  {id:80,name:'Corde',cat:'📦 Divers',qty:0,price:3,min:20},
+  {id:81,name:'Cuir',cat:'📦 Divers',qty:0,price:5,min:20},
+  {id:82,name:'Laine',cat:'📦 Divers',qty:0,price:2,min:30},
+  {id:83,name:'Plume',cat:'📦 Divers',qty:0,price:2,min:20},
+  {id:84,name:'Pierre',cat:'📦 Divers',qty:0,price:1,min:50},
+  {id:85,name:'Verre',cat:'📦 Divers',qty:0,price:2,min:30},
+];
+
+const DEFAULT_SHOP = [
+  {id:1,name:'Fer',cat:'⛏️ Minerai',buy:4,sell:6},{id:2,name:'Or',cat:'⛏️ Minerai',buy:12,sell:18},
+  {id:3,name:'Charbon',cat:'⛏️ Minerai',buy:1,sell:3},{id:4,name:'Redstone',cat:'⛏️ Minerai',buy:2,sell:4},
+  {id:5,name:'Émeraude',cat:'⛏️ Minerai',buy:40,sell:60},{id:6,name:'Lapis',cat:'⛏️ Minerai',buy:3,sell:5},
+  {id:7,name:'Diamant',cat:'⛏️ Minerai',buy:160,sell:240},{id:8,name:'Cuivre',cat:'⛏️ Minerai',buy:3,sell:5},
+  {id:9,name:'Étain',cat:'⛏️ Minerai',buy:5,sell:7},{id:10,name:'Aluminium',cat:'⛏️ Minerai',buy:6,sell:10},
+  {id:11,name:'Éco',cat:'💎 Rare',buy:80,sell:120},{id:12,name:'Desh',cat:'💎 Rare',buy:100,sell:150},
+  {id:13,name:'Onyx',cat:'💎 Rare',buy:250,sell:380},{id:14,name:'Ashtone',cat:'💎 Rare',buy:200,sell:310},
+  {id:15,name:'Tiber',cat:'💎 Rare',buy:280,sell:430},{id:16,name:'Acier',cat:'⚙️ Crafté',buy:20,sell:32},
+  {id:17,name:'Bronze',cat:'⚙️ Crafté',buy:16,sell:26},{id:18,name:'Bois de chêne',cat:'🪵 Bois',buy:1,sell:3},
+  {id:19,name:'Fibre Millénaire',cat:'🪵 Bois',buy:40,sell:65},{id:20,name:'Blé',cat:'🌿 Culture',buy:1,sell:2},
+  {id:21,name:'Pain',cat:'🍖 Nourrit.',buy:2,sell:4},{id:22,name:'Potion de soin',cat:'🍖 Nourrit.',buy:15,sell:25},
+  {id:23,name:'Pioche Diamant',cat:'🔨 Outil',buy:320,sell:480},{id:24,name:'Épée Diamant',cat:'🔨 Outil',buy:280,sell:430},
+  {id:25,name:'Pioche Ashtone',cat:'🔨 Outil',buy:1200,sell:1800},{id:26,name:'Épée Ashtone',cat:'🔨 Outil',buy:1440,sell:2200},
+  {id:27,name:'Pioche Onyx',cat:'🔨 Outil',buy:2400,sell:3600},{id:28,name:'Épée Onyx',cat:'🔨 Outil',buy:2800,sell:4200},
+  {id:29,name:'Armure Diamant (plastron)',cat:'🛡️ Armure',buy:640,sell:960},
+  {id:30,name:'Armure Ashtone (plastron)',cat:'🛡️ Armure',buy:1600,sell:2400},
+  {id:31,name:'Armure Onyx (plastron)',cat:'🛡️ Armure',buy:2400,sell:3600},
+  {id:32,name:'Foreuse',cat:'🔧 Machine',buy:400,sell:600},{id:33,name:'Fonderie',cat:'🔧 Machine',buy:640,sell:960},
+  {id:34,name:'Réparation outil',cat:'🛠️ Service',buy:null,sell:50},
+  {id:35,name:'Réparation armure',cat:'🛠️ Service',buy:null,sell:80},
+];
+
+const DROP_TABLE = [
+  {level:1,drops:['Fer','Charbon','Cuivre'],bonus:'x1'},
+  {level:2,drops:['Fer','Or','Charbon','Redstone'],bonus:'x1.1'},
+  {level:3,drops:['Fer','Or','Redstone','Lapis','Éco'],bonus:'x1.2'},
+  {level:4,drops:['Or','Lapis','Émeraude','Desh','Soufre'],bonus:'x1.3'},
+  {level:5,drops:['Émeraude','Diamant','Zirconium','Magnésium'],bonus:'x1.5'},
+  {level:6,drops:['Diamant','Ashtone','Gallium','Niobium'],bonus:'x1.7'},
+  {level:7,drops:['Ashtone','Onyx','Niobium','Tiber'],bonus:'x2'},
+  {level:8,drops:['Onyx','Tiber','Ashtone'],bonus:'x2.5'},
+  {level:9,drops:['Tiber','Onyx','Ashtone'],bonus:'x3'},
+  {level:10,drops:['Tiber','Onyx','Fibre Millénaire'],bonus:'x4'},
+];
+
+// ============================================================
+// MULTI-SERVEUR STATE
+// ============================================================
+// Structure: { servers: [{id, name, icon}], currentServerId, data: { [serverId]: { resources, recipes, metier } } }
+
+function loadState() {
+  return JSON.parse(localStorage.getItem('ng_state') || 'null');
+}
+
+function initState() {
+  const defaultServer = { id: 'srv_default', name: 'Nation Glory', icon: '⚔️' };
+  const state = {
+    servers: [defaultServer],
+    currentServerId: defaultServer.id,
+    data: {
+      [defaultServer.id]: {
+        resources: DEFAULT_RESOURCES.map(r=>({...r})),
+        recipes: [],
+        metier: {level:1,xp:0,xpNext:100}
+      }
+    }
+  };
+  saveState(state);
+  return state;
+}
+
+function saveState(s) {
+  localStorage.setItem('ng_state', JSON.stringify(s));
+}
+
+let STATE = loadState() || initState();
+
+function currentData() {
+  return STATE.data[STATE.currentServerId];
+}
+
+function save() {
+  saveState(STATE);
+}
+
+// ============================================================
+// SERVEURS
+// ============================================================
+function renderServerSelect() {
+  const sel = document.getElementById('server-select');
+  sel.innerHTML = STATE.servers.map(s =>
+    `<option value="${s.id}" ${s.id===STATE.currentServerId?'selected':''}>${s.icon} ${s.name}</option>`
+  ).join('');
+}
+
+function switchServer(id) {
+  STATE.currentServerId = id;
+  save();
+  refreshAll();
+  toast('🌐 Serveur : ' + STATE.servers.find(s=>s.id===id)?.name);
+}
+
+function openAddServer() {
+  renderServerListModal();
+  document.getElementById('server-modal').classList.add('show');
+}
+
+function closeServerModal() {
+  document.getElementById('server-modal').classList.remove('show');
+}
+
+function renderServerListModal() {
+  const cur = currentData();
+  document.getElementById('server-list-modal').innerHTML = STATE.servers.map(s => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+      <div>
+        <span style="font-size:18px;">${s.icon}</span>
+        <span style="font-family:'Cinzel',serif;font-size:13px;color:${s.id===STATE.currentServerId?'var(--gold)':'var(--text)'}; margin-left:6px;">${s.name}</span>
+        ${s.id===STATE.currentServerId?'<span style="font-size:10px;color:var(--amber);margin-left:5px;">● actuel</span>':''}
+      </div>
+      <div style="display:flex;gap:5px;">
+        ${s.id!==STATE.currentServerId?`<button class="btn btn-green btn-sm" onclick="switchServer('${s.id}');closeServerModal();">Aller</button>`:''}
+        ${STATE.servers.length>1?`<button class="btn btn-red btn-sm" onclick="deleteServer('${s.id}')">🗑</button>`:''}
+      </div>
+    </div>`).join('');
+}
+
+function addServer() {
+  const name = document.getElementById('new-server-name').value.trim();
+  const icon = document.getElementById('new-server-icon').value.trim() || '🌐';
+  if (!name) { toast('⚠️ Donne un nom au serveur'); return; }
+  const id = 'srv_' + Date.now();
+  const copyRes = document.getElementById('copy-resources').checked;
+  STATE.servers.push({ id, name, icon });
+  STATE.data[id] = {
+    resources: copyRes
+      ? JSON.parse(JSON.stringify(currentData().resources)).map(r=>({...r,qty:0}))
+      : DEFAULT_RESOURCES.map(r=>({...r})),
+    recipes: [],
+    metier: {level:1,xp:0,xpNext:100}
+  };
+  save();
+  renderServerSelect();
+  renderServerListModal();
+  document.getElementById('new-server-name').value = '';
+  document.getElementById('new-server-icon').value = '';
+  toast('✅ Serveur "' + name + '" créé !');
+}
+
+function deleteServer(id) {
+  if (!confirm('Supprimer ce serveur et toutes ses données ?')) return;
+  STATE.servers = STATE.servers.filter(s=>s.id!==id);
+  delete STATE.data[id];
+  if (STATE.currentServerId === id) STATE.currentServerId = STATE.servers[0].id;
+  save();
+  renderServerSelect();
+  renderServerListModal();
+  refreshAll();
+  toast('🗑️ Serveur supprimé');
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showTab(tab, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+tab).classList.add('active');
+  btn.classList.add('active');
+  if(tab==='dashboard') renderDashboard();
+  if(tab==='stock'){buildCatFilters();renderResources();}
+  if(tab==='craft') renderRecipes();
+  if(tab==='shop'){buildShopFilters();renderShop();}
+  if(tab==='metier') renderMetier();
+}
+
+function refreshAll() {
+  renderServerSelect();
+  renderDashboard();
+  renderResources();
+  buildCatFilters();
+  renderRecipes();
+  updateStockStats();
+}
+
+function toast(msg,d=2500){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),d);
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard() {
+  const srv = STATE.servers.find(s=>s.id===STATE.currentServerId);
+  const d = currentData();
+  document.getElementById('banner-name').textContent = srv.icon + ' ' + srv.name;
+  document.getElementById('banner-info').textContent = d.resources.length + ' ressources • ' + d.recipes.length + ' recettes';
+  document.getElementById('d-types').textContent = d.resources.length;
+  const val = d.resources.reduce((s,r)=>s+r.qty*r.price,0);
+  document.getElementById('d-value').textContent = val>999?Math.round(val/1000)+'k':val;
+  document.getElementById('d-recipes').textContent = d.recipes.length;
+  document.getElementById('d-craftable').textContent = d.recipes.filter(r=>canMakeCraft(r)).length;
+  const low = d.resources.filter(r=>r.min>0&&r.qty<=r.min);
+  document.getElementById('d-low').textContent = low.length;
+  const profits = d.recipes.map(r=>r.sell-craftCost(r)).filter(p=>p>0);
+  document.getElementById('d-profit').textContent = profits.length?'+'+Math.max(...profits):'0';
+
+  const ll = document.getElementById('low-stock-list');
+  ll.innerHTML = low.length===0
+    ? '<div style="color:var(--text-muted);font-size:12px;">Aucun stock bas 👍</div>'
+    : low.map(r=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;"><span>${r.name}</span><span style="color:var(--red);">${r.qty} / min ${r.min}</span></div>`).join('');
+
+  const top = d.recipes.map(r=>({...r,profit:r.sell-craftCost(r),can:canMakeCraft(r)})).sort((a,b)=>b.profit-a.profit).slice(0,5);
+  document.getElementById('top-crafts-list').innerHTML = top.length===0
+    ? '<div style="color:var(--text-muted);font-size:12px;">Crée des recettes pour voir les profits !</div>'
+    : top.map((r,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;">
+        <span><span style="color:var(--border-gold);font-family:Cinzel,serif;">#${i+1}</span> ${r.name}</span>
+        <div style="text-align:right;"><span style="color:${r.profit>0?'#80d890':'#e88080'}">${r.profit>=0?'+':''}${r.profit}💰</span><div style="font-size:10px;color:${r.can?'#80d890':'#e88080'};">${r.can?'✓ Craftable':'✗ Stock manquant'}</div></div>
+      </div>`).join('');
+}
+
+// ============================================================
+// STOCK
+// ============================================================
+let currentCatFilter = 'Tous';
+
+function buildCatFilters() {
+  const d = currentData();
+  const cats = ['Tous', ...new Set(d.resources.map(r=>r.cat))];
+  document.getElementById('cat-filters').innerHTML = cats.map(c=>
+    `<button class="filter-btn${c===currentCatFilter?' active':''}" onclick="setCatFilter('${c.replace(/'/g,"\\'")}',this)">${c}</button>`
+  ).join('');
+}
+
+function setCatFilter(cat,btn) {
+  currentCatFilter=cat;
+  document.querySelectorAll('#cat-filters .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderResources();
+}
+
+function addResource() {
+  const d=currentData();
+  const name=document.getElementById('new-res-name').value.trim();
+  const cat=document.getElementById('new-res-cat').value;
+  const qty=parseInt(document.getElementById('new-res-qty').value)||0;
+  const price=parseFloat(document.getElementById('new-res-price').value)||0;
+  const min=parseInt(document.getElementById('new-res-min').value)||0;
+  if(!name){toast('⚠️ Donne un nom');return;}
+  if(d.resources.find(r=>r.name.toLowerCase()===name.toLowerCase())){toast('⚠️ Déjà existant');return;}
+  d.resources.push({id:Date.now(),name,cat,qty,price,min});
+  save();renderResources();buildCatFilters();updateStockStats();
+  ['new-res-name','new-res-qty','new-res-price','new-res-min'].forEach(id=>document.getElementById(id).value='');
+  toast('✅ '+name+' ajouté !');
+}
+
+function changeQty(id,delta){
+  const r=currentData().resources.find(r=>r.id===id);if(!r)return;
+  r.qty=Math.max(0,r.qty+delta);save();renderResources();updateStockStats();
+}
+
+function editQty(id){
+  const r=currentData().resources.find(r=>r.id===id);if(!r)return;
+  const v=prompt('Quantité pour '+r.name+' :',r.qty);if(v===null)return;
+  const n=parseInt(v);if(!isNaN(n)&&n>=0){r.qty=n;save();renderResources();updateStockStats();}
+}
+
+function editPrice(id){
+  const r=currentData().resources.find(r=>r.id===id);if(!r)return;
+  const v=prompt('Prix pour '+r.name+' :',r.price);if(v===null)return;
+  const n=parseFloat(v);if(!isNaN(n)&&n>=0){r.price=n;save();renderResources();updateStockStats();}
+}
+
+function deleteResource(id){
+  if(!confirm('Supprimer ?'))return;
+  const d=currentData();
+  d.resources=d.resources.filter(r=>r.id!==id);
+  save();renderResources();buildCatFilters();updateStockStats();toast('🗑️ Supprimé');
+}
+
+function renderResources(){
+  const d=currentData();
+  const search=document.getElementById('search-res').value.toLowerCase();
+  const filtered=d.resources.filter(r=>
+    (currentCatFilter==='Tous'||r.cat===currentCatFilter)&&
+    (r.name.toLowerCase().includes(search)||r.cat.toLowerCase().includes(search))
+  );
+  const list=document.getElementById('resource-list');
+  if(filtered.length===0){list.innerHTML='<div style="text-align:center;color:var(--text-muted);padding:14px;font-size:12px;">Aucune ressource trouvée</div>';return;}
+  list.innerHTML=filtered.map(r=>{
+    const low=r.min>0&&r.qty<=r.min;
+    const icon=r.cat.split(' ')[0];
+    return `<div class="resource-item">
+      <div class="res-icon">${icon}</div>
+      <div class="res-name">${r.name}<small>${r.cat}${r.min>0?' • min:'+r.min:''}</small></div>
+      <div>
+        <div class="res-qty${low?' low-stock':''}">${r.qty.toLocaleString()}</div>
+        <div class="res-price" onclick="editPrice(${r.id})" title="Modifier le prix">${r.price}💰</div>
+      </div>
+      <div class="qty-controls">
+        <button class="qty-btn" onclick="changeQty(${r.id},-1)">−</button>
+        <button class="qty-btn" onclick="editQty(${r.id})">✏️</button>
+        <button class="qty-btn" onclick="changeQty(${r.id},1)">+</button>
+        <button class="qty-btn" onclick="deleteResource(${r.id})" style="font-size:10px;">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+  updateStockStats();
+}
+
+function updateStockStats(){
+  const d=currentData();
+  document.getElementById('s-types').textContent=d.resources.length;
+  document.getElementById('s-qty').textContent=d.resources.reduce((s,r)=>s+r.qty,0).toLocaleString();
+  const v=d.resources.reduce((s,r)=>s+r.qty*r.price,0);
+  document.getElementById('s-val').textContent=v>999?Math.round(v/1000)+'k':v;
+}
+
+// ============================================================
+// CRAFT
+// ============================================================
+let ingredientCount=0;
+
+function addIngredientRow(name='',qty=1){
+  ingredientCount++;
+  const c=document.getElementById('ingredients-container');
+  const div=document.createElement('div');
+  div.className='form-row t3';div.id='ing-row-'+ingredientCount;
+  div.style.cssText='margin-bottom:5px;align-items:end;';
+  div.innerHTML=`
+    <div><label class="form-label">Ressource</label>
+      <input class="form-input" list="rdl-${ingredientCount}" placeholder="Nom" value="${name}" id="ing-res-${ingredientCount}">
+      <datalist id="rdl-${ingredientCount}">${currentData().resources.map(r=>`<option value="${r.name}">`).join('')}</datalist>
+    </div>
+    <div><label class="form-label">Quantité</label><input class="form-input" type="number" placeholder="1" min="1" value="${qty}" id="ing-qty-${ingredientCount}"></div>
+    <div style="padding-bottom:2px;"><button class="btn btn-red btn-sm" onclick="document.getElementById('ing-row-${ingredientCount}').remove()">✕</button></div>`;
+  c.appendChild(div);
+}
+
+function saveRecipe(){
+  const d=currentData();
+  const name=document.getElementById('craft-name').value.trim();
+  const sell=parseFloat(document.getElementById('craft-sell').value)||0;
+  if(!name){toast('⚠️ Donne un nom');return;}
+  const ingredients=[];
+  document.querySelectorAll('[id^="ing-row-"]').forEach(row=>{
+    const n=row.id.replace('ing-row-','');
+    const res=document.getElementById('ing-res-'+n)?.value?.trim();
+    const qty=parseInt(document.getElementById('ing-qty-'+n)?.value)||1;
+    if(res)ingredients.push({name:res,qty});
+  });
+  if(ingredients.length===0){toast('⚠️ Ajoute un ingrédient');return;}
+  d.recipes.push({id:Date.now(),name,sell,ingredients});
+  save();renderRecipes();
+  document.getElementById('craft-name').value='';
+  document.getElementById('craft-sell').value='';
+  document.getElementById('ingredients-container').innerHTML='';
+  ingredientCount=0;
+  toast('✅ Recette sauvegardée !');
+}
+
+function craftCost(recipe){
+  const d=currentData();
+  return recipe.ingredients.reduce((sum,ing)=>{
+    const res=d.resources.find(r=>r.name.toLowerCase()===ing.name.toLowerCase());
+    return sum+(res?res.price*ing.qty:0);
+  },0);
+}
+
+function canMakeCraft(recipe){
+  const d=currentData();
+  return recipe.ingredients.every(ing=>{
+    const res=d.resources.find(r=>r.name.toLowerCase()===ing.name.toLowerCase());
+    return res&&res.qty>=ing.qty;
+  });
+}
+
+function renderRecipes(){
+  const d=currentData();
+  const list=document.getElementById('recipes-list');
+  if(d.recipes.length===0){list.innerHTML='<div style="text-align:center;color:var(--text-muted);padding:14px;font-size:12px;">Aucune recette — crée-en une ci-dessus !</div>';return;}
+  list.innerHTML=d.recipes.map(recipe=>{
+    const cost=craftCost(recipe);const profit=recipe.sell-cost;const can=canMakeCraft(recipe);
+    const chips=recipe.ingredients.map(ing=>{
+      const stock=currentData().resources.find(r=>r.name.toLowerCase()===ing.name.toLowerCase());
+      const has=stock?stock.qty:0;const ok=has>=ing.qty;
+      return `<span class="ingredient-chip ${ok?'ok':'missing'}">${ing.name} x${ing.qty}${!ok?' ('+has+'/'+ing.qty+')':''}</span>`;
+    }).join('');
+    return `<div class="recipe-card">
+      <div class="recipe-header">
+        <div><div class="recipe-name">⚒️ ${recipe.name}</div><div style="font-size:10px;color:var(--text-muted);">Coût:${cost}💰 • Vente:${recipe.sell}💰</div></div>
+        <div class="recipe-profit ${profit>0?'profit-pos':'profit-neg'}">${profit>=0?'+':''}${profit}💰</div>
+      </div>
+      <div class="recipe-ingredients">${chips}</div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;">
+        ${can?`<button class="btn btn-green btn-sm" onclick="openCraftModal(${recipe.id})">⚒️ Crafter</button>`:`<button class="btn btn-ghost btn-sm" disabled style="opacity:.5;">⚒️ Stock insuffisant</button>`}
+        <button class="btn btn-red btn-sm" onclick="deleteRecipe(${recipe.id})">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+let pendingCraft=null;
+function openCraftModal(id){
+  const recipe=currentData().recipes.find(r=>r.id===id);if(!recipe)return;
+  pendingCraft=recipe;
+  const cost=craftCost(recipe);const profit=recipe.sell-cost;
+  document.getElementById('modal-title').textContent='⚒️ Crafter : '+recipe.name;
+  document.getElementById('modal-content').innerHTML=`
+    <div style="margin-bottom:9px;">
+      ${recipe.ingredients.map(ing=>{
+        const res=currentData().resources.find(r=>r.name.toLowerCase()===ing.name.toLowerCase());
+        return `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px;"><span>${ing.name}</span><span style="color:var(--red);">−${ing.qty} (reste:${res?res.qty-ing.qty:'?'})</span></div>`;
+      }).join('')}
+    </div>
+    <div style="background:var(--bg-panel);border-radius:6px;padding:9px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;text-align:center;">
+      <div><div style="color:var(--text-muted);font-size:10px;">COÛT</div><div style="color:var(--amber);font-family:Cinzel,serif;font-size:13px;">${cost}💰</div></div>
+      <div><div style="color:var(--text-muted);font-size:10px;">VENTE</div><div style="color:var(--gold);font-family:Cinzel,serif;font-size:13px;">${recipe.sell}💰</div></div>
+      <div><div style="color:var(--text-muted);font-size:10px;">PROFIT</div><div style="color:${profit>=0?'#80d890':'#e88080'};font-family:Cinzel,serif;font-size:13px;">${profit>=0?'+':''}${profit}💰</div></div>
+    </div>`;
+  document.getElementById('modal-confirm-btn').onclick=confirmCraft;
+  document.getElementById('craft-modal').classList.add('show');
+}
+
+function confirmCraft(){
+  if(!pendingCraft)return;
+  const d=currentData();
+  pendingCraft.ingredients.forEach(ing=>{
+    const res=d.resources.find(r=>r.name.toLowerCase()===ing.name.toLowerCase());
+    if(res)res.qty=Math.max(0,res.qty-ing.qty);
+  });
+  save();renderResources();renderRecipes();closeCraftModal();
+  toast('✅ Craft effectué ! Stock mis à jour.');
+}
+
+function closeCraftModal(){document.getElementById('craft-modal').classList.remove('show');pendingCraft=null;}
+
+function deleteRecipe(id){
+  if(!confirm('Supprimer cette recette ?'))return;
+  const d=currentData();
+  d.recipes=d.recipes.filter(r=>r.id!==id);
+  save();renderRecipes();toast('🗑️ Recette supprimée');
+}
+
+// ============================================================
+// SHOP
+// ============================================================
+let currentShopFilter='Tous';
+function buildShopFilters(){
+  const cats=['Tous',...new Set(DEFAULT_SHOP.map(s=>s.cat))];
+  document.getElementById('shop-filters').innerHTML=cats.map(c=>
+    `<button class="filter-btn${c===currentShopFilter?' active':''}" onclick="setShopFilter('${c.replace(/'/g,"\\'")}',this)">${c}</button>`
+  ).join('');
+}
+function setShopFilter(cat,btn){
+  currentShopFilter=cat;
+  document.querySelectorAll('#shop-filters .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');renderShop();
+}
+function renderShop(){
+  const search=document.getElementById('search-shop').value.toLowerCase();
+  const filtered=DEFAULT_SHOP.filter(s=>(currentShopFilter==='Tous'||s.cat===currentShopFilter)&&s.name.toLowerCase().includes(search));
+  document.getElementById('shop-list').innerHTML=filtered.length===0
+    ?'<div style="text-align:center;color:var(--text-muted);padding:14px;font-size:12px;">Aucun item trouvé</div>'
+    :filtered.map(s=>`<div class="shop-item">
+        <div><div style="font-size:13px;">${s.name}</div><div style="font-size:10px;color:var(--text-muted);">${s.cat}</div></div>
+        <div style="text-align:right;">${s.buy!==null?`<div class="shop-buy">Achat: ${s.buy}💰</div>`:''}<div class="shop-sell">Vente: ${s.sell}💰</div></div>
+      </div>`).join('');
+}
+
+// ============================================================
+// MÉTIER
+// ============================================================
+function saveMetier(){
+  const d=currentData();
+  d.metier.level=parseInt(document.getElementById('m-level').value)||1;
+  d.metier.xp=parseInt(document.getElementById('m-xp').value)||0;
+  d.metier.xpNext=parseInt(document.getElementById('m-xpnext').value)||100;
+  save();
+  const pct=Math.min(100,Math.round((d.metier.xp/d.metier.xpNext)*100));
+  document.getElementById('m-fill').style.width=pct+'%';
+  document.getElementById('m-pct').textContent=pct+'% vers le niveau suivant';
+}
+
+function renderMetier(){
+  const m=currentData().metier;
+  document.getElementById('m-level').value=m.level;
+  document.getElementById('m-xp').value=m.xp;
+  document.getElementById('m-xpnext').value=m.xpNext;
+  const pct=Math.min(100,Math.round((m.xp/m.xpNext)*100));
+  document.getElementById('m-fill').style.width=pct+'%';
+  document.getElementById('m-pct').textContent=pct+'% vers le niveau suivant';
+  document.getElementById('drop-table').innerHTML=DROP_TABLE.map(d=>`
+    <div style="padding:7px 0;border-bottom:1px solid var(--border);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+        <span style="font-family:Cinzel,serif;font-size:12px;color:${d.level===m.level?'var(--gold)':'var(--text-dim)'};">${d.level===m.level?'▶ ':''}Niveau ${d.level}</span>
+        <span style="font-size:11px;color:var(--amber);">Bonus ${d.bonus}</span>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);">${d.drops.join(' • ')}</div>
+    </div>`).join('');
+}
+
+// ============================================================
+// PHOTO / IA
+// ============================================================
+let aiDetectedItems=[],manualDetectedItems=[];
+
+async function handlePhoto(event){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async(e)=>{
+    const base64=e.target.result.split(',')[1];
+    const img=document.getElementById('preview-img');
+    img.src=e.target.result;img.style.display='block';
+    document.getElementById('photo-zone').style.display='none';
+    document.getElementById('photo-loading').classList.add('show');
+    document.getElementById('ai-result').classList.remove('show');
+    try{
+      const response=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,
+          system:`Tu es un assistant pour un joueur Minecraft serveur Nation Glory. Analyse l'image et extrait les ressources avec quantités et prix. Réponds UNIQUEMENT en JSON: {"items":[{"name":"nom","qty":nombre,"price":nombre_ou_null}]}`,
+          messages:[{role:'user',content:[
+            {type:'image',source:{type:'base64',media_type:file.type,data:base64}},
+            {type:'text',text:'Extrait les ressources/items avec quantités et prix.'}
+          ]}]})
+      });
+      const data=await response.json();
+      const text=data.content?.map(c=>c.text||'').join('')||'{"items":[]}';
+      const parsed=JSON.parse(text.replace(/```json|```/g,'').trim());
+      aiDetectedItems=parsed.items||[];
+      showAiResult(aiDetectedItems,'ai-items-list');
+      document.getElementById('ai-result').classList.add('show');
+    }catch(err){toast('⚠️ Erreur analyse. Réessaie.');}
+    finally{document.getElementById('photo-loading').classList.remove('show');}
+  };
+  reader.readAsDataURL(file);
+}
+
+async function processManualAI(){
+  const text=document.getElementById('manual-ai-input').value.trim();
+  if(!text){toast('⚠️ Décris ce que tu as');return;}
+  document.getElementById('manual-loading').classList.add('show');
+  document.getElementById('manual-result').classList.remove('show');
+  try{
+    const response=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,
+        system:`Tu es un assistant pour un joueur Minecraft Nation Glory. Extrait ressources, quantités et prix du texte. Réponds UNIQUEMENT en JSON: {"items":[{"name":"nom","qty":nombre,"price":nombre_ou_null}]}`,
+        messages:[{role:'user',content:text}]})
+    });
+    const data=await response.json();
+    const raw=data.content?.map(c=>c.text||'').join('')||'{"items":[]}';
+    const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    manualDetectedItems=parsed.items||[];
+    showAiResult(manualDetectedItems,'manual-items-list');
+    document.getElementById('manual-result').classList.add('show');
+  }catch(err){toast('⚠️ Erreur IA. Réessaie.');}
+  finally{document.getElementById('manual-loading').classList.remove('show');}
+}
+
+function showAiResult(items,containerId){
+  const c=document.getElementById(containerId);
+  if(items.length===0){c.innerHTML='<div style="color:var(--text-muted);font-size:12px;">Aucun item détecté.</div>';return;}
+  c.innerHTML=items.map((item,i)=>`
+    <div style="display:grid;grid-template-columns:1fr auto auto;gap:5px;align-items:center;padding:4px 0;border-bottom:1px solid var(--border);">
+      <input class="form-input" style="padding:3px 6px;" value="${item.name}" id="ai-name-${containerId}-${i}">
+      <input class="form-input" type="number" style="width:65px;padding:3px 6px;" value="${item.qty}" id="ai-qty-${containerId}-${i}">
+      <input class="form-input" type="number" style="width:65px;padding:3px 6px;" placeholder="prix" value="${item.price||''}" id="ai-price-${containerId}-${i}">
+    </div>`).join('')+'<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">Modifie si besoin avant d\'appliquer</div>';
+}
+
+function applyAiResult(){applyItems('ai-items-list',aiDetectedItems.length);}
+function applyManualResult(){applyItems('manual-items-list',manualDetectedItems.length);}
+
+function applyItems(containerId,count){
+  const d=currentData();let added=0,updated=0;
+  for(let i=0;i<count;i++){
+    const name=document.getElementById(`ai-name-${containerId}-${i}`)?.value?.trim();
+    const qty=parseInt(document.getElementById(`ai-qty-${containerId}-${i}`)?.value)||0;
+    const price=parseFloat(document.getElementById(`ai-price-${containerId}-${i}`)?.value)||0;
+    if(!name)continue;
+    const existing=d.resources.find(r=>r.name.toLowerCase()===name.toLowerCase());
+    if(existing){existing.qty+=qty;if(price>0)existing.price=price;updated++;}
+    else{d.resources.push({id:Date.now()+i,name,cat:'📦 Divers',qty,price,min:0});added++;}
+  }
+  save();renderResources();toast(`✅ ${added} ajouté(s), ${updated} mis à jour`);
+}
+
+function resetPhoto(){
+  document.getElementById('photo-input').value='';
+  document.getElementById('preview-img').style.display='none';
+  document.getElementById('preview-img').src='';
+  document.getElementById('photo-zone').style.display='';
+  document.getElementById('ai-result').classList.remove('show');
+  aiDetectedItems=[];
+}
+
+// ============================================================
+// PWA
+// ============================================================
+if('serviceWorker'in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+
+// ============================================================
+// INIT
+// ============================================================
+renderServerSelect();
+renderDashboard();
+updateStockStats();
+</script>
+
+</body>
+</html>
